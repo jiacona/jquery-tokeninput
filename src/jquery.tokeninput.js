@@ -383,6 +383,23 @@ $.TokenList = function (input, url_or_data, settings) {
         });
     }
 
+    // make sortable (requires jquery-ui sortable plugin)
+    var sort_start = null;
+    if(settings.sortable) {
+      if(token_list.sortable)
+        token_list.sortable({
+          start: function(event, ui) {
+                    sort_start = ui.item.index();
+                 },
+          update: function(event, ui) {
+                    move_token(sort_start, ui.item.index());
+                    sort_start = null;
+                  }
+        });
+      else
+        console.log('tokeninput error: jquery-ui sortable required if sortable specified');
+    }
+
     // Check if widget should initialize as disabled
     if (settings.disabled) {
         toggleDisabled(true);
@@ -648,6 +665,12 @@ $.TokenList = function (input, url_or_data, settings) {
         if($.isFunction(callback)) {
             callback.call(hidden_input,token_data);
         }
+    }
+
+    // move token in saved token list
+    function move_token(from, to) {
+      saved_tokens.splice(to, 0, saved_tokens.splice(from, 1)[0]);
+      update_hidden_input(saved_tokens, hidden_input);
     }
 
     // Update the hidden input box value
